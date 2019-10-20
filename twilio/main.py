@@ -55,6 +55,7 @@ def generateSMS():
         address = Address(loc=BODY,ts=TIMESTAMP, num=PHONE_NUMBER)
         if PHONE_NUMBER in msg_cache:
             _process(address.address)
+            resp.message('We are processing your request')
         else:
             resp.message('Please make a request before you enter your address')
 
@@ -86,11 +87,27 @@ def generateSMS():
 
     return str(resp)
 
+
+voice_cache = {}
 @app.route("/echo", methods =['POST'])
 def generateRESP():
-    body = request.json['query']
-    cat = Classifier(body).classify()
-    return jsonify(resp=cat)
+
+    BODY = request.json['body']
+    LOCATION = request.json['loc']
+    SKILL = request.json['skill']
+    CATEGORY = Classifier(body).classify()
+    TIMESTAMP = datetime.date.today()
+    vc = VoiceQuery(CATEGORY,LOCATION,SKILL)
+
+    if vc.isSkill():
+        return jsonify(response=vc.query)
+
+    return jsonify(reponse="None")
+
+
+
+
+
 
 
 if __name__ == "__main__":
