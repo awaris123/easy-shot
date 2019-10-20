@@ -1,0 +1,3 @@
+[submodule "easy_shot"]
+	path = easy_shot
+	url = ./easy_shot
