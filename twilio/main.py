@@ -1,6 +1,7 @@
 # Download the helper library from https://www.twilio.com/docs/python/install
 from twilio.rest import Client
-from flask import Flask
+from twilio.twiml.messaging_response import MessagingResponse
+from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 # Your Account Sid and Auth Token from twilio.com/console
@@ -12,17 +13,24 @@ client = Client(account_sid, auth_token)
 
 
 @app.route("/sms")
-def hello():
-    message = client.messages \
-                .create(
-                     body="Join Earth's mightiest heroes. Like Kevin Bacon.",
-                     from_='+13368021545',
-                     to='+16309911662'
-                 )
-    print(message.sid) 
+def generateSMS():
+   
+    body = request.values.get('Body', None)
+    if not body:
+        body = request.json['query']
+        return jsonify(resp=body)
 
 
-    return "Hello World!"
+
+    """Respond to incoming messages with a friendly SMS."""
+    # Start our response
+    resp = MessagingResponse()
+
+    # Add a message
+    resp.message(body)
+
+    return str(resp)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
