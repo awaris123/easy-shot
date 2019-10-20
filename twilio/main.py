@@ -2,6 +2,7 @@ from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 from flask import Flask, request, jsonify
 from NLPClassifier import NLPClassifier as Classifier
+# from Classifier import Classifier
 from Address import Address
 from Request import Request
 from VoiceQuery import VoiceQuery
@@ -20,7 +21,7 @@ client = Client(account_sid, auth_token)
 
 
 def _process(address):
-    print(address)
+    print("location: ", address)
 
 def isAddress(address):
     for i in  address:
@@ -39,10 +40,11 @@ def generateSMS():
     # Start our response
     resp = MessagingResponse()
 
-    BODY = request.values.get('Body', None)
-    PHONE_NUMBER = request.values.get('_from',None)
+    BODY = str(request.values.get('Body', None))
+    PHONE_NUMBER = str(request.values.get('From'))
     CATEGORY = Classifier(BODY).classify()
     TIMESTAMP = datetime.date.today()
+    print(PHONE_NUMBER, CATEGORY, TIMESTAMP)
 
 
     if isAddress(BODY):
@@ -50,7 +52,10 @@ def generateSMS():
         address = Address(loc=BODY,ts=TIMESTAMP, num=PHONE_NUMBER)
         if PHONE_NUMBER in msg_cache:
             _process(address.address)
-            resp.message('We are processing your request')
+            msg_cache[PHONE_NUMBER].s_loc = address.address
+            print("number", PHONE_NUMBER)
+            resp.message('Please follow the link')
+            resp.message('http://ec2-18-216-217-61.us-east-2.compute.amazonaws.com:3000/'+(PHONE_NUMBER[1::]))
         else:
             resp.message('Please make a request before you enter your address')
 
@@ -87,30 +92,42 @@ def generateSMS():
 
     return str(resp)
 
+@app.route("/react", methods =['GET'])
+def getSID():
+    print("I got here")
+    print(request.args['tid'])
 
-voice_cache = {}
+    for k in msg_cache.keys():
+        print(msg_cache[k].number)
+        if (msg_cache[k].number)[1::] == request.args['tid']:
+
+            return jsonify(start=msg_cache[k].s_loc, end="151 N State St Fl 1s")
+
+    return "NONE"
+
+
 @app.route("/echo", methods =['POST'])
 def generateRESP():
 
-    BODY = request.json['body']
-    LOCATION = request.json['loc']
-    SKILL = request.json['skill']
+    BODY = str(request.values.get('body'))
+
+    LOCATION = request.values.get('loc')
     CATEGORY = Classifier(BODY).classify()
+    print(CATEGORY)
     TIMESTAMP = datetime.date.today()
-    vc = VoiceQuery(CATEGORY,LOCATION,SKILL)
+    vc = VoiceQuery(CATEGORY,LOCATION,"")
+
+    ret = ""
+
+    if CATEGORY == "mental":
+        ret = "Hang in there, it's okay to feel the way you do, sometimes it helps to talk, here is a number to call when you feel this way: 1-800-273-8255"
+    elif CATEGORY == "drug" or CATEGORY == "flu":
+        ret = "We are processing your request"
+    else:
+        ret = "We could not process that request, please try again"
+    return jsonify(response=ret)
 
 
-    if vc.isSkill():
-        ret = ""
-        if vc.query == "mental":
-            ret = "Hang in there, it's okay to feel the way you do, sometimes it helps to talk, here is a number to call when you feel this way: 1-800-273-8255"
-        elif vc.query == "drug" or vc.query == "flu":
-            ret = "We are processing your request"
-        else:
-            ret = "We could not process that request, please try again"
-        return jsonify(response=ret)
-
-    return jsonify(reponse="None")
 
 
 
