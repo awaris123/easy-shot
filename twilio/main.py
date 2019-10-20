@@ -2,12 +2,12 @@ from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 from flask import Flask, request, jsonify
 from NLPClassifier import NLPClassifier as Classifier
-# from Classifier import Classifier
 from Address import Address
 from Request import Request
 from VoiceQuery import VoiceQuery
 import json
 import datetime
+from locate import primary_facility_phone, flu_facility_phone, convert_to_long_lat
 app = Flask(__name__)
 
 
@@ -100,8 +100,10 @@ def getSID():
     for k in msg_cache.keys():
         print(msg_cache[k].number)
         if (msg_cache[k].number)[1::] == request.args['tid']:
+            StartTup = convert_to_long_lat(msg_cache[k].s_loc)
+            ENDtup = primary_facility_phone(msg_cache[k].s_loc)
 
-            return jsonify(start=msg_cache[k].s_loc, end="151 N State St Fl 1s")
+            return jsonify(start=jsonify(lat=StartTup[0], lon=StartTup[1]), end=jsonify(lat=ENDtup[0], lon=ENDtup[1]))
 
     return "NONE"
 
