@@ -37,9 +37,9 @@ class Classifier():
     def parser(self, punctuation=False):
         text = self.text
         if punctuation:
-            return np.array(re.findall('[\w_][^\s]*[\w_]|[\w_]', text.lower()))
+            return np.array(re.findall('[\w_][^\s]*[\w_]|[\w_]', text))
         else:
-            return np.array(re.findall('[\w_]+', text.lower()))
+            return np.array(re.findall('[\w_]+', text))
 
     def flu_weight(self):
         words = self.parser()
