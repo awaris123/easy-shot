@@ -14,25 +14,25 @@ with open("../data/generalwords.pkl", 'rb') as pickle_file:
 
 
 class Classifier():
-    """Smart classifier that takes text and returns if the person should go to 
+    """Smart classifier that takes text and returns if the person should go to
        a vaccination place or a hospital.
-       
+
        Args:
          text: The statement from the customer about their queries. String.
-       
+
        Functions:
          flu_weight: Computes the weights for flu label. Double.
          general_weight: Computer the weights for general label. Double.
          classify: Compares weights and returns labels for "flu", "general", "none"
-       
+
        Usage:
          clf = Classifier("sample text")
          label = clf.classify()
-         
+
     """
     def __init__(self, text):
         self.text = text
-    
+
 
     def parser(self, punctuation=False):
         text = self.text
@@ -65,7 +65,7 @@ class Classifier():
     def classify(self):
         gen, flu = self.general_weight(), self.flu_weight()
         if gen == 0 and flu ==0:
-            return "none"
+            return "neither"
         elif flu >= gen:
             return "flu"
         else:
