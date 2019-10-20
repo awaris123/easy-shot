@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 certifi==2019.9.11
 chardet==3.0.4
 Click==7.0
@@ -22,3 +23,8 @@ sklearn==0.0
 twilio==6.0.0
 urllib3==1.25.6
 Werkzeug==0.16.0
+=======
+Flask>=0.12
+gunicorn==19.5.0
+twilio~=6.0.0
+>>>>>>> 989cc050fe0e352ee0dab925a6ccd3c37c2c3810
