@@ -1,10 +1,10 @@
-# Download the helper library from https://www.twilio.com/docs/python/install
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 from flask import Flask, request, jsonify
-from Classifier import Classifier
+from NLPClassifier import NLPClassifier as Classifier
 from Address import Address
 from Request import Request
+from VoiceQuery import VoiceQuery
 import json
 import datetime
 app = Flask(__name__)
@@ -14,15 +14,10 @@ keys = {}
 with open('keys.json', 'r') as f:
     keys = json.load(f)
 
-#key = keys[0]
-
-# Your Account Sid and Auth Token from twilio.com/console
-# DANGER! This is insecure. See http://twil.io/secure
 account_sid =keys['account_sid']
 auth_token = keys['auth_token']
 client = Client(account_sid, auth_token)
 
-msg_cache = {}
 
 def _process(address):
     print(address)
@@ -36,7 +31,7 @@ def isAddress(address):
             pass
     return False
 
-
+msg_cache = {}
 @app.route("/sms", methods=['POST'])
 def generateSMS():
 
@@ -72,10 +67,15 @@ def generateSMS():
         elif PHONE_NUMBER in msg_cache:
             resp.message('You already have a pending request, please enter a location or "RESTART" to cancel your request')
         else:
-            if CATEGORY != "neither":
+            if CATEGORY == "flu" or CATEGORY == "drug":
                 req = Request(cat=CATEGORY, ts=TIMESTAMP, num=PHONE_NUMBER)
                 msg_cache[PHONE_NUMBER] = req
                 resp.message('Please enter your location')
+
+            elif CATEGORY == "mental":
+                resp.message('''Hang in there, it's okay to feel the way you do, sometimes it helps to talk, here is a number to call when you feel this way: 1-800-273-8255''')
+                pass
+
             else:
                 resp.message("Your request could not be processed, please rephrase, or consult another service")
                 try:
@@ -95,12 +95,20 @@ def generateRESP():
     BODY = request.json['body']
     LOCATION = request.json['loc']
     SKILL = request.json['skill']
-    CATEGORY = Classifier(body).classify()
+    CATEGORY = Classifier(BODY).classify()
     TIMESTAMP = datetime.date.today()
     vc = VoiceQuery(CATEGORY,LOCATION,SKILL)
 
+
     if vc.isSkill():
-        return jsonify(response=vc.query)
+        ret = ""
+        if vc.query == "mental":
+            ret = "Hang in there, it's okay to feel the way you do, sometimes it helps to talk, here is a number to call when you feel this way: 1-800-273-8255"
+        elif vc.query == "drug" or vc.query == "flu":
+            ret = "We are processing your request"
+        else:
+            ret = "We could not process that request, please try again"
+        return jsonify(response=ret)
 
     return jsonify(reponse="None")
 
