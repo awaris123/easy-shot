@@ -76,7 +76,7 @@ class NLPClassifier():
         words = [snowBallStemmer.stem(word) for word in wordList]
         word_weight = 0
         for w in words:
-            print(w)
+#             print(w)
             if w in mental_only_set:
                 word_weight+=2
             elif w in mental_drug_set:
