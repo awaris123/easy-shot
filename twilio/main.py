@@ -3,12 +3,20 @@ from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 from flask import Flask, request, jsonify
 from Classifier import Classifier
+import json
 app = Flask(__name__)
+
+
+keys = {}
+with open('keys.json', 'r') as f:
+    keys = json.load(f)
+
+#key = keys[0]
 
 # Your Account Sid and Auth Token from twilio.com/console
 # DANGER! This is insecure. See http://twil.io/secure
-account_sid = 'AC4a171ebb76aac736dce2958d1ffeabd4'
-auth_token = '8d3af93e4c6ccffc94360c3fd7cc5566'
+account_sid =keys['account_sid']
+auth_token = keys['auth_token']
 client = Client(account_sid, auth_token)
 
 
