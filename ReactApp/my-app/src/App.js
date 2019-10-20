@@ -45,11 +45,6 @@ class App extends Component {
       <div>
         <Router>
           <div>
-            <ul>
-              <li>
-                <Link to="/modus-create">Modus Create</Link>
-              </li>
-            </ul>
             <Switch>
               <Route path="/:transactionid" children={<Child />} />
             </Switch>
