@@ -2,6 +2,7 @@
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 from flask import Flask, request, jsonify
+from Classifier import Classifier
 app = Flask(__name__)
 
 # Your Account Sid and Auth Token from twilio.com/console
@@ -18,16 +19,17 @@ def generateSMS():
     body = request.values.get('Body', None)
     if not body:
         body = request.json['query']
-        return jsonify(resp=body)
+        cat = Classifier(body).classify()
+        return jsonify(resp=cat)
 
-
+    cat = Classifier(body).classify()
 
     """Respond to incoming messages with a friendly SMS."""
     # Start our response
     resp = MessagingResponse()
 
     # Add a message
-    resp.message(body)
+    resp.message(cat)
 
     return str(resp)
 
