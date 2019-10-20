@@ -22,12 +22,17 @@ function Child() {
   // the dynamic pieces of the URL.
   let { transactionid } = useParams();
   console.log("transactionid is: ", transactionid);
-  axios
-    .get(`http://348404fd.ngrok.io/react?tid=${transactionid}`)
-    .then(({ data: coordinates_returned }) => {
-      console.log("user", coordinates_returned);
-      setCoordinateSrc(coordinates_returned);
-    });
+  axios({
+    url: `http://348404fd.ngrok.io/react?tid=${transactionid}`,
+    method: "get",
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*"
+    }
+  }).then(({ data: coordinates_returned }) => {
+    console.log("response", coordinates_returned);
+    setCoordinateSrc(coordinates_returned);
+  });
 
   return (
     <div>
