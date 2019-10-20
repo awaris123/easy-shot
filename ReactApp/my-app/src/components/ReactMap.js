@@ -23,11 +23,17 @@ const MapWithADirectionsRenderer = compose(
   lifecycle({
     componentDidMount() {
       const DirectionsService = new google.maps.DirectionsService();
-
+      console.log("destination is: ", this.props.destination);
       DirectionsService.route(
         {
-          origin: new google.maps.LatLng(41.85073, -87.65126),
-          destination: new google.maps.LatLng(41.85258, -87.65141),
+          origin: new google.maps.LatLng(
+            this.props.source[0],
+            this.props.source[1]
+          ),
+          destination: new google.maps.LatLng(
+            this.props.destination[0],
+            this.props.destination[1]
+          ),
           travelMode: google.maps.TravelMode.TRANSIT
         },
         (result, status) => {
