@@ -56,6 +56,7 @@ def generateSMS():
             print("number", PHONE_NUMBER)
             resp.message('Please follow the link')
             resp.message('http://ec2-18-216-217-61.us-east-2.compute.amazonaws.com:3000/'+(PHONE_NUMBER[1::]))
+            del[msg_cache[PHONE_NUMBER]]
         else:
             resp.message('Please make a request before you enter your address')
 
